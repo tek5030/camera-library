@@ -9,7 +9,7 @@ struct StereoPair
   cv::Mat left;
   cv::Mat right;
 
-  cv::Mat hconcat() const;
+  [[nodiscard]] cv::Mat hconcat() const;
 };
 
 struct StampedStereoPair
