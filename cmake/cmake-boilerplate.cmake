@@ -128,8 +128,6 @@ macro(add_cmake_boilerplate)
   install(FILES
     ${CMAKE_BINARY_DIR}/${project_config}
     ${CMAKE_BINARY_DIR}/${version_config}
-    ${CMAKE_BINARY_DIR}/find-pkg-package.cmake
-    ${CMAKE_BINARY_DIR}/find-ros-package.cmake
     ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
     DESTINATION ${config_install_dir}
     )
