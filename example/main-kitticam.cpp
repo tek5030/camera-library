@@ -34,6 +34,7 @@ int main(int argc, char** argv) try
   {
     const auto [left, right] = cam.getStereoPair();
 
+    const auto calibration_data = cam.getCalibration(KittiCamera::Cam::GrayLeft);
     cv::Mat pair;
     cv::hconcat(left, right, pair);
     cv::imshow(window_name, pair);
