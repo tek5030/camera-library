@@ -27,7 +27,8 @@ KittiCamera::KittiCamera(
   const std::string& calib_path,
   const bool color
 )
-  : left_cap_{dataset_path + '/' + kitti::camera_folder
+  : color_{color}
+  , left_cap_{dataset_path + '/' + kitti::camera_folder
               + (color ? kitti::color_left_cam : kitti::gray_left_cam)
               + '/' + kitti::data_folder + '/' + "0%09d.png"}
   , right_cap_{dataset_path + '/' + kitti::camera_folder
@@ -35,6 +36,9 @@ KittiCamera::KittiCamera(
                + '/' + kitti::data_folder + '/' + "0%09d.png"}
   , calibration_map_{kitti::loadCamToCamCalibration(calib_path + '/' + kitti::fname_calib_cam_to_cam)}
 {
+  std::cout << "path: " << std::string{dataset_path + '/' + kitti::camera_folder
+                            + (color ? kitti::color_left_cam : kitti::gray_left_cam)
+                            + '/' + kitti::data_folder + '/' + "0%09d.png"} << std::endl;
   if (!left_cap_.isOpened())
   { throw std::invalid_argument("Could not open left camera directory"); }
 
@@ -59,6 +63,20 @@ StereoPair KittiCamera::getStereoPair() const
   if (!right_ok)
   { throw std::runtime_error{"End of right camera stream"}; }
 
+  // Seems to be a change in OpenCV 4.4.0
+  if (!color_ && stereo_pair.left.channels() == 3)
+  {
+    cv::Mat bgr[3];
+    cv::split(stereo_pair.left, bgr);
+    stereo_pair.left = bgr[0];
+  }
+
+  if (!color_ && stereo_pair.right.channels() == 3)
+  {
+    cv::Mat bgr[3];
+    cv::split(stereo_pair.right, bgr);
+    stereo_pair.right = bgr[0];
+  }
   ++frame_count_;
 
   return stereo_pair;
@@ -83,6 +101,11 @@ KittiCamera::Calibration KittiCamera::getCalibration(KittiCamera::Cam cam) const
       return calibration_map_.at(kitti::color_right_cam);
   }
   throw std::invalid_argument("unexpected error");
+}
+
+bool KittiCamera::color() const
+{
+  return color_;
 }
 
 /// Sensor Calibration

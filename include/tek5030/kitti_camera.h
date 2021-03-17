@@ -50,8 +50,11 @@ public:
 
   Calibration getCalibration(Cam cam) const;
 
+  bool color() const;
+
 private:
   mutable size_t frame_count_ = 0;
+  bool color_;
   mutable cv::VideoCapture left_cap_;
   mutable cv::VideoCapture right_cap_;
 

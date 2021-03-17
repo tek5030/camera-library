@@ -22,8 +22,10 @@ int main(int argc, char** argv) try
   const bool color = false;
   KittiCamera cam(dataset_path, calib_path, color);
 
-  const auto calib = cam.getCalibration(KittiCamera::Cam::GrayLeft);
-  std::cout << calib.K << std::endl;
+  const auto calib = cam.getCalibration(KittiCamera::Cam::GrayRight);
+  std::cout << calib.rotation << std::endl;
+  std::cout << calib.translation << std::endl;
+
 
   const std::string window_name{"frame"};
   cv::namedWindow(window_name, cv::WINDOW_NORMAL);
@@ -34,7 +36,6 @@ int main(int argc, char** argv) try
   {
     const auto [left, right] = cam.getStereoPair();
 
-    const auto calibration_data = cam.getCalibration(KittiCamera::Cam::GrayLeft);
     cv::Mat pair;
     cv::hconcat(left, right, pair);
     cv::imshow(window_name, pair);
