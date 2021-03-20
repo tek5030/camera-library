@@ -14,8 +14,12 @@ endif()
 #################################################################
 ### Set properties on the CMake target containing the library ###
 #################################################################
-macro(add_library_boilerplate _target_name)
-  set(_TARGET_NAME ${_target_name})
+macro(add_library_boilerplate)
+  if (${ARGC} GREATER 0)
+    set(_TARGET_NAME ${ARGV0})
+  else()
+    set(_TARGET_NAME ${PROJECT_NAME})
+  endif()
   message(STATUS "* add_library_boilerplate for project '${_TARGET_NAME}'")
 
   add_library(${CMAKE_PROJECT_NAME}::${_TARGET_NAME} ALIAS ${_TARGET_NAME})
@@ -83,6 +87,7 @@ macro(add_cmake_boilerplate)
   if (NOT DEFINED project_targets)
     set(project_targets ${PROJECT_NAME})
   endif ()
+  message(STATUS "* add_cmake_boilerplate for targets '${project_targets}'")
 
   string(TOLOWER ${CMAKE_PROJECT_NAME} package_name)
   set(config_install_dir  "share/cmake/${PROJECT_NAME}/")
@@ -101,7 +106,7 @@ macro(add_cmake_boilerplate)
     ${CMAKE_BINARY_DIR}/${project_config}     # output
     INSTALL_DESTINATION ${config_install_dir} # has no visible effect, but must match
     # destination in install commands below
-    NO_CHECK_REQUIRED_COMPONENTS_MACRO        # Enabled since this library has no components
+    #NO_CHECK_REQUIRED_COMPONENTS_MACRO        # Enabled since this library has no components
     NO_SET_AND_CHECK_MACRO                    # We are not setting variables containing paths
   )
 
