@@ -28,24 +28,24 @@ public:
   ~SingleStreamCamera();
 
   /// \return An image from the active stream.
-  cv::Mat getFrame() const;
+  [[nodiscard]] cv::Mat getFrame() const;
 
   /// \brief Return the frame rate for the active stream.
-  double getFrameRate() const;
+  [[nodiscard]] double getFrameRate() const;
 
   /// \brief Return the current resolution for the active stream.
-  cv::Size getResolution() const;
+  [[nodiscard]] cv::Size getResolution() const;
 
   /// \brief Get the intrinsic camera parameters of a camera.
   /// The parameters are stored in the device and can be read out.
   /// \param cam Left or right IR-camera.
   /// \return The K-matrix.
-  cv::Matx33f K() const;
+  [[nodiscard]] cv::Matx33f K() const;
 
   /// \brief Get the distortion parameters of a camera.
   /// \param cam Left or right IR-camera.
   /// \return The distortion parameters.
-  cv::Vec5f distortion() const;
+  [[nodiscard]] cv::Vec5f distortion() const;
 
   /// \brief Stream operator returning a frame from the 'active_stream_',
   /// configured in the constructor or with setActiveStream.

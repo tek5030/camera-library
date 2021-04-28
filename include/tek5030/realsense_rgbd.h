@@ -32,22 +32,22 @@ public:
 
   /// \brief Retrieve a RGBD frame from the camera.
   /// \return The captured frame.
-  RGBDImage getRGBDImage() const;
+  [[nodiscard]] RGBDImage getRGBDImage() const;
 
   /// \brief Return the frame rate for the camera.
-  double getFrameRate() const;
+  [[nodiscard]] double getFrameRate() const;
 
   /// \brief Return the current resolution for the camera.
-  cv::Size getResolution() const;
+  [[nodiscard]] cv::Size getResolution() const;
 
   /// \brief Get the intrinsic camera parameters of the camera.
   /// The parameters are stored in the device and can be read out.
   /// \return The K-matrix.
-  cv::Matx33f K() const;
+  [[nodiscard]] cv::Matx33f K() const;
 
   /// \brief Get the distortion parameters of the camera.
   /// \return The distortion parameters.
-  cv::Vec5f distortion() const;
+  [[nodiscard]] cv::Vec5f distortion() const;
 
   /// \brief Set the laser projector on or off.
   /// \param mode On or off.

@@ -30,34 +30,34 @@ public:
   /// \brief Retrieve a pair of frames from the camera.
   /// The frames are captured simultaneously from the left and right IR-camera.
   /// \return The captured pair.
-  StereoPair getStereoPair() const;
+  [[nodiscard]] StereoPair getStereoPair() const;
 
   /// \brief Retrieve a timestamped pair of frames from the camera.
   /// The frames are captured simultaneously from the left and right IR-camera.
   /// \return The captured pair.
-  StampedStereoPair getStampedStereoPair() const;
+  [[nodiscard]] StampedStereoPair getStampedStereoPair() const;
 
   /// \brief Return the frame rate for the given camera.
   /// \param cam Left or right IR-camera.
-  double getFrameRate(CameraStream cam) const;
+  [[nodiscard]] double getFrameRate(CameraStream cam) const;
 
   /// \brief The current resolution for the given camera.
   /// \param cam Left or right IR-camera.
-  cv::Size getResolution(CameraStream cam) const;
+  [[nodiscard]] cv::Size getResolution(CameraStream cam) const;
 
   /// \brief Get the intrinsic camera parameters of a camera.
   /// The parameters are stored in the device and can be read out.
   /// \param cam Left or right IR-camera.
   /// \return The K-matrix.
-  cv::Matx33f K(CameraStream cam) const;
+  [[nodiscard]] cv::Matx33f K(CameraStream cam) const;
 
   /// \brief Get the distortion parameters of a camera.
   /// \param cam Left or right IR-camera.
   /// \return The distortion parameters.
-  cv::Vec5f distortion(CameraStream cam) const;
+  [[nodiscard]] cv::Vec5f distortion(CameraStream cam) const;
 
   /// \return The rotation and translation (the extrinsic parameters) of the right IR-camera relative to the left IR-camera.
-  cv::Affine3f pose() const;
+  [[nodiscard]] cv::Affine3f pose() const;
 
   /// \brief Set the laser projector on or off.
   /// \param mode On or off.
