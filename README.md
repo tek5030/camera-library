@@ -47,10 +47,11 @@ if(TARGET tek5030::rs2)  #  if(tek5030_rs2_FOUND) does also work
 endif()
 ```
 
+See the `example` directory for complete, working examples for all camera types.
+
 Stream single frames:
 ```c++
 #include "tek5030/opencv_camera.h"     // Super thin wrapper around cv::VideoCapture
-#include "tek5030/dual_camera.h"       // Stereo from two cv::VideoCapture cameras
 #include "tek5030/realsense_single.h"  // Use a RealSense camera
 
 using namespace tek5030;
@@ -58,13 +59,6 @@ using namespace tek5030::RealSense;
 
 // Initialize with device ID
 OpenCVCamera cam(0);
-
-// Initialize with device IDs 
-DualCamera cam(0,1);
-
-// Initialize with path to dataset and calibration. Select color or monochrome camera pair.
-bool color = false;
-KittiCamera cam("path_to_data", "path_to_calib", color)
 
 // Initialize with a default camera feed (for use with the operator>>)
 SingleStreamCamera cam(SingleStreamCamera::CameraStream::COLOR);
@@ -76,10 +70,28 @@ cam >> frame;
 
 Fetch a StereoPair:
 ```c++
+#include "tek5030/dual_camera.h"       // Stereo from two cv::VideoCapture cameras
+#include "tek5030/kitti_camera.h"      // Stereo from image pairs from a Kitti dataset
+#include "tek5030/realsense_stereo.h"  // Use a RealSense camera
+
+using namespace tek5030;
+using namespace tek5030::RealSense;
+
+// Initialize with device IDs 
+DualCamera cam(0,1);
+
+// Initialize with path to dataset and calibration. Select color or monochrome camera pair.
+bool color = false;
+KittiCamera cam("path_to_data", "path_to_calib", color)
+
+// Use a RealSense
+RealSense::StereoCamera cam(CaptureMode::UNRECTIFIED);
+cam.setLaserMode(LaserMode::OFF)
+
 // Available from DualCamera, KittiCamera or RealSense::StereoCamera
-tek5030::StereoPair stereo_pair = cam.getStereoPair();
+const StereoPair stereo_pair = cam.getStereoPair();
 // or
-auto [left, right] = cam.getStereoPair();
+const auto [left, right] = cam.getStereoPair();
 ```
 Access and configure the internal `cv::VideoCapture` object:
 ```c++
@@ -90,5 +102,10 @@ cap.set(cv::CAP_PROP_xyz, value);
 Retreive the calibration data for a `KittiCamera`
 ```cpp
 const auto calibration_data = cam.getCalibration(KittiCamera::Cam::GrayLeft);
+```
+Retreive the calibration data for a `RealSense` camera
+```cpp
+const cv::Matx33f K = cam.K(CameraStream::LEFT);
+const cv::Vec5f distortion = cam.distortion(CameraStream::LEFT);
 ```
 
