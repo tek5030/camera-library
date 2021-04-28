@@ -21,6 +21,9 @@ sudo add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/
 
 sudo apt install -y librealsense2-{dkms,utils,dev,dbg}
 ```
+- After installing the realsense libraries, you should run `realsense-viewer` from the terminal.
+  This will allow you to update the camera firmware (you will get a notification if a new version is available) and to test the camera.
+  
 
 ### Install this library
 ```bash
