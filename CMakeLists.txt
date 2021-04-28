@@ -8,6 +8,9 @@ include(cmake-boilerplate)
 find_package(OpenCV REQUIRED COMPONENTS core highgui imgproc videoio)
 
 add_library(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC ${OpenCV_LIBS}
+  )
 target_sources(${PROJECT_NAME}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/tek5030/dual_camera.h>
@@ -25,11 +28,34 @@ target_sources(${PROJECT_NAME}
   src/stereo_pair.cpp
   )
 
-target_link_libraries(${PROJECT_NAME}
-  PUBLIC ${OpenCV_LIBS}
-  )
+add_library_boilerplate()
 
-add_library_boilerplate(${PROJECT_NAME})
+find_package(realsense2 QUIET)
+if (NOT realsense2_FOUND)
+  message(STATUS "* realsense2 was not found")
+else()
+  message(STATUS "* realsense2 was found: add_library(rs2)")
+  add_library(rs2)
+  target_link_libraries(rs2
+    PUBLIC ${PROJECT_NAME}
+    PRIVATE realsense2::realsense2
+    )
+  target_sources(rs2
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/tek5030/realsense_single.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/tek5030/realsense_rgbd.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/tek5030/realsense_stereo.h>
+    $<INSTALL_INTERFACE:include/tek5030/realsense_single.h>
+    $<INSTALL_INTERFACE:include/tek5030/realsense_rgbd.h>
+    $<INSTALL_INTERFACE:include/tek5030/realsense_stereo.h>
+    PRIVATE
+    src/realsense_camera_helpers.cpp
+    src/realsense_single.cpp
+    src/realsense_rgbd.cpp
+    src/realsense_stereo.cpp
+    )
+  add_library_boilerplate(rs2)
+endif()
 
 add_cmake_boilerplate()
 
