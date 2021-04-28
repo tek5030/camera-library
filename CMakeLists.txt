@@ -31,7 +31,10 @@ target_sources(${PROJECT_NAME}
 add_library_boilerplate()
 
 find_package(realsense2 QUIET)
-if (realsense2_FOUND)
+if (NOT realsense2_FOUND)
+  message(STATUS "* realsense2 was not found")
+else()
+  message(STATUS "* realsense2 was found: add_library(rs2)")
   add_library(rs2)
   target_link_libraries(rs2
     PUBLIC ${PROJECT_NAME}

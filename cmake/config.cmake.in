@@ -19,9 +19,5 @@ foreach(component ${@CMAKE_PROJECT_NAME@_FIND_COMPONENTS})
   endif()
 endforeach()
 
-#
-#if (realsense2_FOUND)
-#endif()
-
 check_required_components(@CMAKE_PROJECT_NAME@)
 message(STATUS "Found @namespace@@CMAKE_PROJECT_NAME@ : " "${CMAKE_CURRENT_LIST_DIR}")
