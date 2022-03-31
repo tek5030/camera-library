@@ -13,12 +13,15 @@ int main() try
   std::cout << "Connected to RealSense camera: " << std::endl;
   std::cout << "Resolution: " << cam.getResolution(StereoCamera::CameraStream::LEFT) << std::endl;
   std::cout << "Frame rate: " << cam.getFrameRate(StereoCamera::CameraStream::LEFT) << std::endl;
-  std::cout << std::endl << "Press 'l' to toggle laser." << std::endl;
+  std::cout << "Press 'l' to toggle laser." << std::endl;
+  std::cout << "Press 'u' to toggle capture mode." << std::endl;
+  std::cout << "Press 'q' to quit." << std::endl;
 
   const std::string window_name{"frame"};
   cv::namedWindow(window_name, cv::WINDOW_NORMAL);
 
   bool laser_on = false;
+  bool rectified = false;
 
   while (true)
   {
@@ -43,6 +46,13 @@ int main() try
     {
       laser_on = !laser_on;
       cam.setLaserMode(laser_on ? StereoCamera::LaserMode::ON : StereoCamera::LaserMode::OFF);
+      std::cout << "Laser: " << (laser_on ? "on" : "off") << std::endl;
+    }
+    else if (key == static_cast<int>('u'))
+    {
+      rectified = !rectified;
+      cam.setCaptureMode(rectified ? StereoCamera::CaptureMode::RECTIFIED : StereoCamera::CaptureMode::UNRECTIFIED);
+      std::cout << "Rectified: " << std::boolalpha << rectified << std::endl;
     }
     else if (key >= 0)
     { break; }

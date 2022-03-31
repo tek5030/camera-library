@@ -63,6 +63,10 @@ public:
   /// \param mode On or off.
   void setLaserMode(LaserMode mode);
 
+  /// \brief Set the capture mode
+  /// \param mode The capture mode.
+  void setCaptureMode(const CaptureMode& mode);
+
   /// \brief Stream operator returning a timestamped stereo pair.
   /// \param pair The StampedStereoPair in which to store the pair.
   bool operator>>(StampedStereoPair& pair) const;

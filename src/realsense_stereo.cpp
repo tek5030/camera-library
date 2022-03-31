@@ -16,25 +16,7 @@ namespace tek5030::RealSense
 StereoCamera::StereoCamera(CaptureMode capture_mode)
     : pipe_{std::make_shared<rs2::pipeline>()}
 {
-  const cv::Size IR_size{1280,800};
-  rs2::config cfg;
-
-  switch (capture_mode)
-  {
-    case CaptureMode::UNRECTIFIED:
-    // Use Y16 mode for unrectified frames.
-    cfg.enable_stream(RS2_STREAM_INFRARED, StreamIndex::LEFT,  IR_size.width, IR_size.height, RS2_FORMAT_Y16);
-    cfg.enable_stream(RS2_STREAM_INFRARED, StreamIndex::RIGHT, IR_size.width, IR_size.height, RS2_FORMAT_Y16);
-    break;
-
-    case CaptureMode::RECTIFIED:
-    default:
-    // Use Y8 mode for rectified frames.
-    cfg.enable_stream(RS2_STREAM_INFRARED, StreamIndex::LEFT,  IR_size.width, IR_size.height, RS2_FORMAT_Y8);
-    cfg.enable_stream(RS2_STREAM_INFRARED, StreamIndex::RIGHT, IR_size.width, IR_size.height, RS2_FORMAT_Y8);
-  }
-
-  pipe_->start(cfg);
+  setCaptureMode(capture_mode);
 }
 
 StereoCamera::~StereoCamera()
@@ -115,6 +97,36 @@ void StereoCamera::setLaserMode(LaserMode mode)
     cam.set_option(RS2_OPTION_EMITTER_ENABLED, static_cast<float>(mode));
   }
 }
+
+void StereoCamera::setCaptureMode(const CaptureMode& capture_mode)
+{
+  const cv::Size IR_size{1280,800};
+  rs2::config cfg;
+  cfg.disable_all_streams();
+
+  switch (capture_mode)
+  {
+    case StereoCamera::CaptureMode::UNRECTIFIED:
+    // Use Y16 mode for unrectified frames.
+    cfg.enable_stream(RS2_STREAM_INFRARED, StreamIndex::LEFT,  IR_size.width, IR_size.height, RS2_FORMAT_Y16);
+    cfg.enable_stream(RS2_STREAM_INFRARED, StreamIndex::RIGHT, IR_size.width, IR_size.height, RS2_FORMAT_Y16);
+    break;
+
+    case StereoCamera::CaptureMode::RECTIFIED:
+    default:
+    // Use Y8 mode for rectified frames.
+    cfg.enable_stream(RS2_STREAM_INFRARED, StreamIndex::LEFT,  IR_size.width, IR_size.height, RS2_FORMAT_Y8);
+    cfg.enable_stream(RS2_STREAM_INFRARED, StreamIndex::RIGHT, IR_size.width, IR_size.height, RS2_FORMAT_Y8);
+  }
+
+  try
+  { pipe_->stop();}
+  catch(...){}
+
+  if (!pipe_->start(cfg))
+  { throw std::runtime_error("configuring pipeline failed"); }
+}
+
 }
 
 namespace
