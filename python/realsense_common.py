@@ -65,20 +65,6 @@ class Size:
     def as_cv_size(self):
         return np.array((self._width, self._height), dtype=int)
 
-    #def __getattribute__(self, item):
-    #    print(f"__getattribute__({item})")
-    #    return super(Size, self).__getattribute__(item)
-
-    #def __getattr__(self, item):
-    #    print(f"__getattr__({item})")
-
     @property
     def dict(self):
         return {"width": self._width, "height": self._height}
-
-def func(width, height):
-    print(f"func: {width} x {height}")
-
-if __name__ == "__main__":
-    sz = Size(width=20, height=10)
-    func(**sz.dict)

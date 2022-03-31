@@ -1,22 +1,14 @@
 import pyrealsense2 as rs2
 import numpy as np
-from realsense_common import (CameraIndex, CameraStream, LaserMode, Size)
+from realsense_common import (CameraIndex, CameraStream, CaptureMode, LaserMode, Size)
 
 
 class RealSenseSingleStreamCamera:
-    def __init__(self, active_stream: CameraStream):
-        size = Size(width=640, height=480)
-
+    def __init__(self, active_stream: CameraStream, capture_mode: CaptureMode = CaptureMode.RECTIFIED):
         self._active_stream = active_stream
         self._pipe = rs2.pipeline()
-
-        cfg = rs2.config()
-        cfg.disable_all_streams()
-        cfg.enable_stream(rs2.stream.infrared, int(CameraIndex.LEFT), **size.dict, format=rs2.format.y8)
-        cfg.enable_stream(rs2.stream.infrared, int(CameraIndex.RIGHT), **size.dict, format=rs2.format.y8)
-        cfg.enable_stream(rs2.stream.color, **size.dict, format=rs2.format.bgr8)
-        cfg.enable_stream(rs2.stream.depth, format=rs2.format.z16)
-        self._pipe.start(cfg)
+        self._capture_mode = None
+        self.capture_mode = capture_mode
         self.laser_mode = LaserMode.OFF
 
     def __del__(self):
@@ -26,12 +18,14 @@ class RealSenseSingleStreamCamera:
         device = self._pipe.get_active_profile().get_device()
         serial_number = device.get_info(rs2.camera_info.serial_number)
         device_product_line = str(device.get_info(rs2.camera_info.product_line))
-
-        return ("RealSense:\n"
+        info = ("RealSense:\n"
                 f"  product line: {device_product_line}\n"
                 f"  serial: {serial_number}\n"
-                f"  K: {self.get_calibration_matrix(self.active_stream)}\n"
+                f"  resolution: {self.get_resolution(self.active_stream)}\n"
                 )
+        if self.capture_mode is not CaptureMode.UNRECTIFIED:
+            info += f"  K: {self.get_calibration_matrix(self.active_stream)}\n"
+        return info
 
     @property
     def active_stream(self):
@@ -39,6 +33,8 @@ class RealSenseSingleStreamCamera:
 
     @active_stream.setter
     def active_stream(self, active_stream):
+        if active_stream == CameraStream.DEPTH:
+            self.capture_mode = CaptureMode.RECTIFIED
         self._active_stream = active_stream
 
     @property
@@ -56,6 +52,45 @@ class RealSenseSingleStreamCamera:
             depth_sensor.set_option(rs2.option.emitter_enabled, 1)
         else:
             depth_sensor.set_option(rs2.option.emitter_enabled, 0)
+
+    @property
+    def capture_mode(self):
+        return self._capture_mode
+
+    @capture_mode.setter
+    def capture_mode(self, capture_mode: CaptureMode):
+        if self._capture_mode == capture_mode:
+            return
+
+        self._capture_mode = capture_mode
+
+        bgr_size = Size(width=640, height=480)
+        #ir_size = Size(width=848, height=480)
+        #ir_size = Size(width=640, height=480)
+        if capture_mode is CaptureMode.RECTIFIED:
+            mode = rs2.format.y8
+            ir_size = bgr_size
+        else:
+            mode = rs2.format.y16
+            ir_size = Size(width=1280, height=800)
+            if self.active_stream == CameraStream.DEPTH:
+                self.active_stream = CameraStream.LEFT
+
+        try:
+            self._pipe.stop()
+        except RuntimeError:
+            pass
+
+        cfg = rs2.config()
+        cfg.disable_all_streams()
+        #cfg.enable_all_streams()
+        cfg.enable_stream(rs2.stream.infrared, int(CameraIndex.LEFT), **ir_size.dict, format=mode, framerate=0)
+        cfg.enable_stream(rs2.stream.infrared, int(CameraIndex.RIGHT), **ir_size.dict, format=mode, framerate=0)
+        cfg.enable_stream(rs2.stream.color, **bgr_size.dict, format=rs2.format.bgr8)
+        if capture_mode is CaptureMode.RECTIFIED:
+            cfg.enable_stream(rs2.stream.depth, format=rs2.format.z16)
+        self._pipe.start(cfg)
+        print(self)
 
     def get_frame(self):
         data = self._pipe.wait_for_frames()
@@ -79,6 +114,10 @@ class RealSenseSingleStreamCamera:
     def get_distortion(self, camera: CameraStream):
         d = self._get_video_stream_profile(camera).get_intrinsics().coeffs
         return np.array([d])
+
+    def get_resolution(self, camera: CameraStream) -> Size:
+        profile = self._get_video_stream_profile(camera)
+        return Size(width=profile.width(), height=profile.height())
 
     def _get_video_stream_profile(self, camera: CameraStream):
         if camera == CameraStream.LEFT:
