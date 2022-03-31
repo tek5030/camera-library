@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 import cv2
 import numpy as np
-from realsense_stereo import (RealSenseStereoCamera, CaptureMode, LaserMode)
+from realsense_common import (CameraStream, CaptureMode, LaserMode, Size)
+from realsense_mono import (RealSenseSingleStreamCamera)
 
 
-def demo_stereo():
-    cam = RealSenseStereoCamera(CaptureMode.RECTIFIED)
+def demo_mono():
+    cam = RealSenseSingleStreamCamera(CameraStream.COLOR)
     print("Connected to RealSense camera:")
     print(cam)
     print("Press 'l' to toggle laser.")
@@ -17,17 +18,9 @@ def demo_stereo():
     laser_on = False
     rectified = False
     while True:
-        frame_1, frame_2 = cam.get_stereo_pair()
-        pair = np.hstack((frame_1, frame_2))
+        frame = cam.get_frame()
         
-        pair = cv2.cvtColor(pair, cv2.COLOR_GRAY2BGR)
-
-        # Draw lines along the image rows.
-        # For rectified pair, these should coincide with the epipolar lines.
-        for i in np.arange(50, pair.shape[0], 50):
-            cv2.line(pair, (0, i), (pair.shape[1], i), (0,0,65535))
-        
-        cv2.imshow('RealSense', pair)
+        cv2.imshow('RealSense', frame)
         key = cv2.waitKey(1)
         if key == ord('q'):
             print("Bye")
@@ -46,4 +39,4 @@ def demo_stereo():
 
 
 if __name__ == "__main__":
-    demo_stereo()
+    demo_mono()
