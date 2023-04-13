@@ -30,31 +30,36 @@ target_sources(${PROJECT_NAME}
 
 add_library_boilerplate()
 
-find_package(realsense2 QUIET)
-if (NOT realsense2_FOUND)
-  message(STATUS "* realsense2 was not found")
+option(WITH_REALSENSE "Build examples" ON)
+if (NOT WITH_REALSENSE)
+message(STATUS "* Component tek5030::rs2 with support for Intel® RealSense™ is DISABLED because option WITH_REALSENSE is ${WITH_REALSENSE}")
 else()
-  message(STATUS "* realsense2 was found: add_library(rs2)")
-  add_library(rs2)
-  target_link_libraries(rs2
-    PUBLIC ${PROJECT_NAME}
-    PRIVATE realsense2::realsense2
-    )
-  target_sources(rs2
-    PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/tek5030/realsense_single.h>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/tek5030/realsense_rgbd.h>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/tek5030/realsense_stereo.h>
-    $<INSTALL_INTERFACE:include/tek5030/realsense_single.h>
-    $<INSTALL_INTERFACE:include/tek5030/realsense_rgbd.h>
-    $<INSTALL_INTERFACE:include/tek5030/realsense_stereo.h>
-    PRIVATE
-    src/realsense_camera_helpers.cpp
-    src/realsense_single.cpp
-    src/realsense_rgbd.cpp
-    src/realsense_stereo.cpp
-    )
-  add_library_boilerplate(rs2)
+  find_package(realsense2 QUIET)
+  if (NOT realsense2_FOUND)
+    message(WARNING "* Component tek5030::rs2 with support for Intel® RealSense™ is DISABLED because library realsense2 was not found")
+  else()
+    message(STATUS "* realsense2 was found: add_library(rs2)")
+    add_library(rs2)
+    target_link_libraries(rs2
+      PUBLIC ${PROJECT_NAME}
+      PRIVATE realsense2::realsense2
+      )
+    target_sources(rs2
+      PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/tek5030/realsense_single.h>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/tek5030/realsense_rgbd.h>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/tek5030/realsense_stereo.h>
+      $<INSTALL_INTERFACE:include/tek5030/realsense_single.h>
+      $<INSTALL_INTERFACE:include/tek5030/realsense_rgbd.h>
+      $<INSTALL_INTERFACE:include/tek5030/realsense_stereo.h>
+      PRIVATE
+      src/realsense_camera_helpers.cpp
+      src/realsense_single.cpp
+      src/realsense_rgbd.cpp
+      src/realsense_stereo.cpp
+      )
+    add_library_boilerplate(rs2)
+  endif()
 endif()
 
 add_cmake_boilerplate()
